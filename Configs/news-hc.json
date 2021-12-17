@@ -1,0 +1,42 @@
+{"Training": {
+  "DATASET": "news",
+  "data_path": "/data/lastness/stego-corpora/news2020.txt",
+
+  "output_dir" : "generation/encoding/1126-news-hc",
+
+  "model_type": "RNN",
+  "RATIO": 0.95,
+  "BATCH_SIZE": 32,
+  "EPOCH":10,
+  "LEARNING_RATE": 0.0001
+
+
+},
+  "RNN": {
+    "CELL": "lstm",
+      "checkpoint": "models/news-best-checkpoint.pkl",
+    "EMBED_SIZE": 128,
+    "HIDDEN_DIM": 256,
+    "NUM_LAYERS": 2,
+    "DROPOUT_RATE": 0.0
+  },
+  "GPT": {
+    "model_name_or_path": "gpt2",
+    "preprocessing_num_workers": 8,
+    "overwrite_cache": true
+  },
+  "Vocabulary": {
+    "WORD_DROP": 10,
+    "MIN_LEN": 5,
+    "MAX_LEN": 200
+  },
+  "Generation": {
+    "alg": "hc",
+    "MAX_GENERATE_LENGTH": 200,
+    "GENERATE_NUM": 10000,
+    "bit": 5,
+    "bit_stream_file": "./bit_stream.txt"
+  }
+
+
+}

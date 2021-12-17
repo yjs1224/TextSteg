@@ -1,0 +1,48 @@
+{"Training": {
+  "DATASET": "tweet",
+  "data_path": "/data/lastness/stego-corpora/tweet2020.txt",
+  "output_dir": "/data/lastness/STEG_LM/BART/tweet",
+  "model_type": "BART",
+  "RATIO": 0.95,
+  "BATCH_SIZE": 32,
+  "EPOCH":10,
+  "LEARNING_RATE": 0.0001,
+  "MAX_GENERATE_LENGTH": 60,
+  "GENERATE_EVERY": 2500,
+  "EVAL_STEPS": 5000,
+  "SEED": 100,
+  "SEQUENCE_LEN": 60,
+  "GENERATION_DIR": "generation",
+  "lr_scheduler_type": "linear",
+  "weight_decay": 0.01,
+  "warmup_ratio": 0.06
+},
+  "RNN": {
+    "CELL": "lstm",
+    "EMBED_SIZE": 128,
+    "HIDDEN_DIM": 256,
+    "NUM_LAYERS": 2,
+    "DROPOUT_RATE": 0.0
+  },
+  "GPT": {
+    "model_name_or_path": "gpt2",
+    "preprocessing_num_workers": 8,
+    "overwrite_cache": true
+  },
+  "T5": {
+    "model_name_or_path": "t5-small",
+    "preprocessing_num_workers": 8,
+    "overwrite_cache": true
+  },
+  "BART": {
+    "model_name_or_path": "facebook/bart-base",
+    "preprocessing_num_workers": 8,
+    "overwrite_cache": true
+  },
+  "Vocabulary": {
+    "WORD_DROP": 10,
+    "MIN_LEN": 5,
+    "MAX_LEN": 200,
+    "MAX_GENERATE_LENGTH": 60
+  }
+}

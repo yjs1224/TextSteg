@@ -302,8 +302,9 @@ def main(Config):
                         if '_EOS' in stega_sentence:
                             break
                         # conditional probability distribution
-                        log_prob = model(x)
-                        prob = torch.exp(log_prob)[:, -1, :].reshape(-1)
+                        log_prob = model(x)[:, -1, :]
+                        log_prob -= log_prob.max()
+                        prob = torch.exp(log_prob).reshape(-1)
                         prob[1] = 0
                         prob = prob / prob.sum()
                         if Generation_Configs.alg.lower() == "ac":
@@ -422,8 +423,9 @@ def main(Config):
                             break
                         # conditional probability distribution
                         # todo begin
-                        log_prob = model(x).logits
-                        prob = torch.exp(log_prob)[:, -1, :].reshape(-1)
+                        log_prob = model(x).logits[:, -1, :]
+                        log_prob -= log_prob.max()
+                        prob = torch.exp(log_prob).reshape(-1)
                         prob[tokenizer.unk_token_id] = 0
                         # todo end
                         prob = prob / prob.sum()
@@ -457,7 +459,7 @@ if __name__ == '__main__':
     import argparse
     # t = T5Tokenizer.from_pretrained("t5-base")
     parser = argparse.ArgumentParser(description="argument for generation")
-    parser.add_argument("--config_path", type=str, default="./Configs/test-bart-hc.json")
+    parser.add_argument("--config_path", type=str, default="./Configs/test-gpt-hc.json")
     args = parser.parse_args()
     Config = utils.Config(args.config_path).get_configs()
     main(Config)

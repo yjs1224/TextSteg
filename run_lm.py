@@ -161,6 +161,10 @@ def train_lm(dataset, model, Training_Configs, tokenizer):
 			progress_bar.update(1)
 			completed_steps += 1
 
+			if completed_steps % Training_Configs.GENERATE_EVERY == 0:
+				model.eval()
+				model.train()
+
 			if completed_steps % Training_Configs.EVAL_STEPS == 0:
 				perplexity = eval_lm(dataset, model, Training_Configs,tokenizer)
 				logger.info(f"global step {completed_steps}: perplexity: {perplexity}")
@@ -273,7 +277,7 @@ def main(config):
 
 
 	elif MODEL_TYPE in ["GPT","T5","BART"]:
-		if MODEL_TYPE == "CPT":
+		if MODEL_TYPE == "GPT":
 			LM_configs = config.GPT
 			model_config = GPT2Config.from_pretrained(LM_configs.model_name_or_path)
 			tokenizer = GPT2TokenizerFast.from_pretrained(LM_configs.model_name_or_path)
@@ -305,7 +309,7 @@ def main(config):
 		column_names = raw_datasets["train"].column_names
 		text_column_name = "text" if "text" in column_names else column_names[0]
 		def gpt_tokenize_function(examples):
-			return tokenizer(examples[text_column_name])
+			return tokenizer(tokenizer.bos_token+examples[text_column_name])
 
 		def bart_tokenize_function(examples):
 			return tokenizer(examples[text_column_name])
@@ -326,7 +330,7 @@ def main(config):
 
 		tokenized_datasets = raw_datasets.map(
 			tokenize_function,
-			batched=True,
+			batched=False,
 			num_proc=LM_configs.preprocessing_num_workers,
 			remove_columns=column_names,
 			load_from_cache_file=not LM_configs.overwrite_cache,
@@ -391,7 +395,7 @@ def main(config):
 if __name__ == '__main__':
 	import argparse
 	parser = argparse.ArgumentParser(description="argument for generation")
-	parser.add_argument("--config_path", type=str, default="./Configs/tweet-bart.json")
+	parser.add_argument("--config_path", type=str, default="./Configs/test-gpt.json")
 	args=parser.parse_args()
 	Config = utils.Config(args.config_path).get_configs()
 	main(Config)

@@ -1,13 +1,11 @@
-# 说明
-
-## 支持模型 
+## Models 
 
 - RNN
-- BART （类似BART的模型也通用）
+- BART 
 
-## 支持算法
+## Algorithms
 
-- AC (非截断版本)
+- AC 
 - HC (VLC)
 - ADG (grouping) 
 

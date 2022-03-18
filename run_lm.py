@@ -163,6 +163,7 @@ def train_lm(dataset, model, Training_Configs, tokenizer):
 
 			if completed_steps % Training_Configs.GENERATE_EVERY == 0:
 				model.eval()
+				logger.info(tokenizer.decode(model.generate(do_sample=True)[0]))
 				model.train()
 
 			if completed_steps % Training_Configs.EVAL_STEPS == 0:
@@ -178,6 +179,10 @@ def train_lm(dataset, model, Training_Configs, tokenizer):
 
 			if completed_steps >= max_train_steps:
 				break
+
+	unwrapped_model = model
+	unwrapped_model.save_pretrained(os.path.join(Training_Configs.output_dir, "final"))
+	tokenizer.save_pretrained(os.path.join(Training_Configs.output_dir, "final"))
 
 
 def eval_lm(dataset, model, Training_Configs, tokenizer):
@@ -308,8 +313,9 @@ def main(config):
 		# preprocess text
 		column_names = raw_datasets["train"].column_names
 		text_column_name = "text" if "text" in column_names else column_names[0]
+
 		def gpt_tokenize_function(examples):
-			return tokenizer(tokenizer.bos_token+examples[text_column_name])
+			return tokenizer(tokenizer.bos_token+"stega generation:"+examples[text_column_name])
 
 		def bart_tokenize_function(examples):
 			return tokenizer(examples[text_column_name])
@@ -395,7 +401,7 @@ def main(config):
 if __name__ == '__main__':
 	import argparse
 	parser = argparse.ArgumentParser(description="argument for generation")
-	parser.add_argument("--config_path", type=str, default="./Configs/test-gpt.json")
+	parser.add_argument("--config_path", type=str, default="./Configs/commonsense-gpt.json")
 	args=parser.parse_args()
 	Config = utils.Config(args.config_path).get_configs()
 	main(Config)

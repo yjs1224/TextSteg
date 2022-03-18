@@ -395,22 +395,25 @@ def main(Config):
                 while len(stega_text) < Generation_Configs.GENERATE_NUM:
                     # sample start word
                     stega_sentence = []
-                    stega_bit = ['', '']
                     # TODO begin
                     prefix = ""
-                    prompt_text = tokenizer.bos_token
-                    encoded_prompt = tokenizer.encode(prefix + prompt_text, add_special_tokens=False,
+                    prompt_text = "stega generation:"
+                    encoded_prompt = tokenizer.encode(tokenizer.bos_token + prefix + prompt_text, add_special_tokens=False,
                                                       return_tensors="pt")
                     encoded_prompt = encoded_prompt.to(device)
                     input_ids = encoded_prompt
-                    logits = model(input_ids).logits
-                    probs = torch.exp(logits)[:, -1, :]
+                    stega_bit = [''] * (input_ids.shape[-1]+1)
+                    logits = model(input_ids).logits[:, -1, :]
+                    logits -= logits.max()
+                    probs = torch.exp(logits)
                     for forbidden_id in [tokenizer.bos_token_id, tokenizer.eos_token_id, tokenizer.unk_token_id]:
                         probs[:, forbidden_id] = 0
+                    # for forbidden_id in range(256):
+                    #     probs[:, forbidden_id] = 0
                     samp = torch.multinomial(probs,1)
                     stega_sentence.append(int(samp.view(1,1)))
                     if Training_Configs.model_type == "GPT":
-                        x = samp
+                        x = torch.cat([input_ids, samp], dim=1)
                     elif Training_Configs.model_type == "BART":
                         x = torch.cat([input_ids, samp], dim=1)
                     # TODO end
@@ -426,9 +429,15 @@ def main(Config):
                         log_prob = model(x).logits[:, -1, :]
                         log_prob -= log_prob.max()
                         prob = torch.exp(log_prob).reshape(-1)
-                        prob[tokenizer.unk_token_id] = 0
+                        if Training_Configs.model_type == "BART":
+                            prob[tokenizer.unk_token_id] = 0
+                        # for forbidden_id in range(256):
+                        #     prob[forbidden_id] = 0
                         # todo end
                         prob = prob / prob.sum()
+                        # print(prob[tokenizer.eos_token_id])
+                        # if prob.argmax() == tokenizer.eos_token_id:
+                        #     break
                         if Generation_Configs.alg.lower() == "ac":
                             cur_interval, prev, num_bits_encoded = encoder_func(prob, bit_stream, bit_index,
                                                                                 cur_interval, Generation_Configs)
@@ -436,13 +445,16 @@ def main(Config):
                             prev, num_bits_encoded = encoder_func(prob, bit_stream, bit_index, Generation_Configs)
                         elif Generation_Configs.alg.lower() == "adg":
                             prev, num_bits_encoded = encoder_func(prob, bit_stream, bit_index, Generation_Configs)
+                        # early stop generation
+                        if int(prev) == tokenizer.eos_token_id:
+                            break
                         stega_sentence.append(int(prev))
                         x = torch.cat([x, prev], dim=1)
                         stega_bit.append(bit_stream[bit_index:bit_index + num_bits_encoded])
                         bit_index += num_bits_encoded
-                        # early stop generation
-                        if int(prev) == tokenizer.eos_token_id:
-                            break
+                        # # early stop generation
+                        # if int(prev) == tokenizer.eos_token_id:
+                        #     break
 
                     # check is necessray
                     if tokenizer.eos_token_id in stega_sentence:
@@ -459,7 +471,7 @@ if __name__ == '__main__':
     import argparse
     # t = T5Tokenizer.from_pretrained("t5-base")
     parser = argparse.ArgumentParser(description="argument for generation")
-    parser.add_argument("--config_path", type=str, default="./Configs/test-gpt-hc.json")
+    parser.add_argument("--config_path", type=str, default="./Configs/commonsense-gpt-hc.json")
     args = parser.parse_args()
     Config = utils.Config(args.config_path).get_configs()
     main(Config)

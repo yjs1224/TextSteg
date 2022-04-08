@@ -1,20 +1,24 @@
 {"Training": {
   "DATASET": "tweet",
   "data_path": "/data/lastness/stego-corpora/tweet2020.txt",
-  "output_dir" : "generation/encoding/1126-tweet-hc",
-
-  "model_type": "RNN",
-  "prompt": "",
+  "output_dir": "/data/lastness/STEG_LM/GPT/tweet",
+  "model_type": "GPT",
   "RATIO": 0.95,
   "BATCH_SIZE": 32,
   "EPOCH":10,
-  "LEARNING_RATE": 0.0001
-
-
+  "LEARNING_RATE": 0.0001,
+  "MAX_GENERATE_LENGTH": 60,
+  "GENERATE_EVERY": 2500,
+  "EVAL_STEPS": 2000,
+  "SEED": 100,
+  "SEQUENCE_LEN": 60,
+  "GENERATION_DIR": "generation",
+  "lr_scheduler_type": "linear",
+  "weight_decay": 0.01,
+  "warmup_ratio": 0.06
 },
   "RNN": {
     "CELL": "lstm",
-      "checkpoint": "models/tweet-best-checkpoint.pkl",
     "EMBED_SIZE": 128,
     "HIDDEN_DIM": 256,
     "NUM_LAYERS": 2,
@@ -28,15 +32,7 @@
   "Vocabulary": {
     "WORD_DROP": 10,
     "MIN_LEN": 5,
-    "MAX_LEN": 200
-  },
-  "Generation": {
-    "alg": "hc",
-    "MAX_GENERATE_LENGTH": 200,
-    "GENERATE_NUM": 10000,
-    "bit": 5,
-    "bit_stream_file": "./bit_stream.txt"
+    "MAX_LEN": 200,
+    "MAX_GENERATE_LENGTH":60
   }
-
-
 }

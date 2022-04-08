@@ -397,7 +397,7 @@ def main(Config):
                     stega_sentence = []
                     # TODO begin
                     prefix = ""
-                    prompt_text = "stega generation:"
+                    prompt_text = Training_Configs.prompt
                     encoded_prompt = tokenizer.encode(tokenizer.bos_token + prefix + prompt_text, add_special_tokens=False,
                                                       return_tensors="pt")
                     encoded_prompt = encoded_prompt.to(device)
@@ -408,8 +408,8 @@ def main(Config):
                     probs = torch.exp(logits)
                     for forbidden_id in [tokenizer.bos_token_id, tokenizer.eos_token_id, tokenizer.unk_token_id]:
                         probs[:, forbidden_id] = 0
-                    # for forbidden_id in range(256):
-                    #     probs[:, forbidden_id] = 0
+                    for forbidden_id in range(256):
+                        probs[:, forbidden_id] = 0
                     samp = torch.multinomial(probs,1)
                     stega_sentence.append(int(samp.view(1,1)))
                     if Training_Configs.model_type == "GPT":
@@ -431,8 +431,8 @@ def main(Config):
                         prob = torch.exp(log_prob).reshape(-1)
                         if Training_Configs.model_type == "BART":
                             prob[tokenizer.unk_token_id] = 0
-                        # for forbidden_id in range(256):
-                        #     prob[forbidden_id] = 0
+                        for forbidden_id in range(256):
+                            prob[forbidden_id] = 0
                         # todo end
                         prob = prob / prob.sum()
                         # print(prob[tokenizer.eos_token_id])
@@ -471,7 +471,7 @@ if __name__ == '__main__':
     import argparse
     # t = T5Tokenizer.from_pretrained("t5-base")
     parser = argparse.ArgumentParser(description="argument for generation")
-    parser.add_argument("--config_path", type=str, default="./Configs/commonsense-gpt-hc.json")
+    parser.add_argument("--config_path", type=str, default="./Configs/commonsense-gpt-ac.json")
     args = parser.parse_args()
     Config = utils.Config(args.config_path).get_configs()
     main(Config)

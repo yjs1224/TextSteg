@@ -315,7 +315,7 @@ def main(config):
 		text_column_name = "text" if "text" in column_names else column_names[0]
 
 		def gpt_tokenize_function(examples):
-			return tokenizer(tokenizer.bos_token+"stega generation:"+examples[text_column_name])
+			return tokenizer(tokenizer.bos_token+Training_Configs.prompt+examples[text_column_name])
 
 		def bart_tokenize_function(examples):
 			return tokenizer(examples[text_column_name])

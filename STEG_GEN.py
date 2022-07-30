@@ -471,7 +471,7 @@ if __name__ == '__main__':
     import argparse
     # t = T5Tokenizer.from_pretrained("t5-base")
     parser = argparse.ArgumentParser(description="argument for generation")
-    parser.add_argument("--config_path", type=str, default="./Configs/commonsense-gpt-ac.json")
+    parser.add_argument("--config_path", type=str, default="./Configs/movie-ac.json")
     args = parser.parse_args()
     Config = utils.Config(args.config_path).get_configs()
     main(Config)
